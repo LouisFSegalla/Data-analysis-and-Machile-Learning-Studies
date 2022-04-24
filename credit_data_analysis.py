@@ -11,6 +11,15 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+import pickle #used to save the data
+
+###################################
+#needed this import to be able to open the plotly graphs in spyder (windows 10)
+import plotly.io as pio
+pio.renderers.default='browser'
+##################################
 
 #loading the database
 base_credit = pd.read_csv(r'archive/credit_data.csv')
@@ -32,11 +41,7 @@ num_paied = np.unique(base_credit['default'],return_counts=True)
 # plt.hist(x = base_credit['loan'])
 # plt.show()
 
-###################################
-#needed this import to be able to open the plotly graphs in spyder (windows 10)
-import plotly.io as pio
-pio.renderers.default='browser'
-##################################
+
 #dynamic plot using plotly
 # graph = px.scatter_matrix(base_credit,dimensions=['age','income'],color='default')
 # graph.show()
@@ -67,7 +72,15 @@ base_credit_filled.fillna(base_credit_non_negative['age'].mean(),inplace=True)
 x_credit = base_credit_filled.iloc[:, 1:4].values
 y_credit = base_credit_filled.iloc[:,4].values
 
-from sklearn.preprocessing import StandardScaler
 
 scaler_credit = StandardScaler()
 x_credit = scaler_credit.fit_transform(x_credit)
+
+###############################################################################################
+#Separating the data into training and test datasets 
+###############################################################################################
+
+x_credit_training, x_credit_test, y_credit_training, y_credit_test = train_test_split(x_credit,y_credit,test_size=0.25,random_state=0)
+
+with open('saved_databases/credit.pkl',mode='wb') as f:
+    pickle.dump([x_credit_training, y_credit_training, x_credit_test, y_credit_test],f)
